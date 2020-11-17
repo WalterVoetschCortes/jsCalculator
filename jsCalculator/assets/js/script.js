@@ -16,20 +16,54 @@ class Calculator {
     }
 
     appendNumber(number) {
-        this.currentOperand = number
+        if(number === '.' && this.currentOperand.includes('.')) return //to avoid adding multiple decimal points
+        this.currentOperand = this.currentOperand.toString() + number.toString()
     }
 
     chooseOperation(operation){
-
+        if(this.currentOperand === '') return //ensures that you always have an operand first
+        if(this.previousOperand !== ''){ //if the first operand has already been set
+            this.compute()
+        }
+        this.operation = operation
+        this.previousOperand = this.currentOperand.toString() + ' ' + operation.toString()
+        this.currentOperand = ''
     }
 
     compute(){
+        let computation //let statement declares variables that are limited to the scope of a block statement
+        const prev = parseFloat(this.previousOperand)
+        const current = parseFloat(this.currentOperand)
 
+        if(isNaN(prev) || isNaN(current)) return //if the operands are not set return
+
+        //alert(this.operation)
+        switch (this.operation) {
+            case '+':
+                computation = prev + current
+                break
+            case '-':
+                computation = prev - current
+                break
+            case '÷':
+                computation = prev / current
+                break
+            case '×':
+                computation = prev * current
+                break
+            default:
+                return
+        }
+
+        this.currentOperand = computation
+        this.operation = undefined
+        this.previousOperand = ''
     }
 
     updateDisplay(){
-        alert(this.currentOperand)
+        //alert('calculator update - currentOperand: ' + this.currentOperand)
         this.currentOperandTextElement.innerText = this.currentOperand
+        this.previousOperandTextElement.innerText = this.previousOperand
     }
 
 }
@@ -51,4 +85,16 @@ numberButtons.forEach(button => {
         calculator.appendNumber(button.innerText)
         calculator.updateDisplay()
     })
+})
+
+operationButtons.forEach(button => {
+    button.addEventListener('click',() =>{
+        calculator.chooseOperation(button.innerText)
+        calculator.updateDisplay()
+    })
+})
+
+equalsButton.addEventListener('click', button => {
+    calculator.compute()
+    calculator.updateDisplay()
 })
